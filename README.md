@@ -34,11 +34,11 @@
 
 #### build docker image
 
-    docker build -f with.env.Dockerfile -t tibame05/tibame_api:0.0.1 .
+    docker build -f with.env.Dockerfile -t peiyuji/tibame_api:0.0.1 .
 
 #### push docker image
 
-    docker push tibame05/tibame_api:0.0.1
+    docker push peiyuji/tibame_api:0.0.1
 
 #### 啟動 api
 
