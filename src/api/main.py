@@ -1,5 +1,6 @@
 # 匯入相關套件
 import pandas as pd  # 用來處理資料表
+import numpy as np
 from fastapi import FastAPI  # 建立 API 用
 from sqlalchemy import create_engine, engine  # 用來建立資料庫連線
 
@@ -26,9 +27,9 @@ def read_root():
     return {"Hello": "World"}  # 回傳基本測試訊息
 
 
-# 定義取得台灣股價的 API 路由
+# 定義取得股價的 API 路由
 @app.get("/etf_daily_price")
-def taiwan_stock_price(
+def etf_daily_price(
     stock_id: str = "",  # 股票代號（可透過 URL query string 傳入）
     start_date: str = "",  # 查詢起始日期（格式：YYYY-MM-DD）
     end_date: str = "",  # 查詢結束日期（格式：YYYY-MM-DD）
@@ -44,6 +45,12 @@ def taiwan_stock_price(
     mysql_conn = get_mysql_financialdata_conn()
     # 使用 Pandas 執行 SQL 查詢並取得資料
     data_df = pd.read_sql(sql, con=mysql_conn)
+    # 關閉資料庫連線
+    mysql_conn.close()
+    # 處理資料：將無限大和無限小的值替換為 NaN，然後轉換 NaN 為 "NA"
+    data_df.replace([np.inf, -np.inf], np.nan, inplace=True)
+    data_df = data_df.fillna("NA")
+
     # 將資料轉為 List of Dict 格式，方便 FastAPI 回傳 JSON
     data_dict = data_df.to_dict("records")
     return {"data": data_dict}  # 回傳資料結果
